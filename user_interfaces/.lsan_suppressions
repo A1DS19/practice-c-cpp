@@ -1,0 +1,10 @@
+# GLFW / X11 / OpenGL driver allocations — intentionally never freed
+leak:libX11
+leak:libXi
+leak:libGL
+leak:libEGL
+leak:libdl
+leak:libfontconfig
+leak:libdrm
+leak:libglib
+leak:glfw
