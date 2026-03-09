@@ -72,33 +72,21 @@ endif()
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 
-# ImGui - compiled as a static library with relaxed warnings ImGui is a
-# "immediate mode" GUI library: you describe your UI every frame rather than
-# managing widget state. It lives in vendor/ so it is never cleaned. We list
-# each .cpp explicitly because imgui_demo.cpp is optional (demo window) and we
-# don't want to blindly glob everything.
-file(
-  GLOB
-  IMGUI_SOURCES
-  ${CMAKE_SOURCE_DIR}/vendor/imgui/src/imgui.cpp # core
-  ${CMAKE_SOURCE_DIR}/vendor/imgui/src/imgui_draw.cpp # draw lists / rendering
-                                                      # primitives
-  ${CMAKE_SOURCE_DIR}/vendor/imgui/src/imgui_tables.cpp # table widget
-  ${CMAKE_SOURCE_DIR}/vendor/imgui/src/imgui_widgets.cpp # buttons, sliders,
-                                                         # inputs, etc.
-  ${CMAKE_SOURCE_DIR}/vendor/imgui/src/imgui_impl_glfw.cpp # backend: maps GLFW
-                                                           # events -> ImGui
-  ${CMAKE_SOURCE_DIR}/vendor/imgui/src/imgui_impl_opengl3.cpp) # backend:
-                                                               # uploads draw
-                                                               # data to OpenGL
-add_library(imgui STATIC ${IMGUI_SOURCES})
-# PUBLIC so that any target linking imgui automatically gets the include path
-target_include_directories(imgui
-                           PUBLIC ${CMAKE_SOURCE_DIR}/vendor/imgui/include)
-# glfw and OpenGL::GL are propagated to targets that link imgui (also PUBLIC)
-target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
-# -w silences all compiler warnings for vendor code we don't own or want to fix
-set_target_properties(imgui PROPERTIES COMPILE_FLAGS "-w")
+# Vendor libraries — auto-detected from vendor/*/src/ and vendor/*/include/
+# To add a new library: drop it into vendor/<name>/src/ and vendor/<name>/include/
+# All vendor sources are compiled into a single static library called "vendor".
+# -w suppresses all warnings since we don't own this code.
+file(GLOB_RECURSE VENDOR_SOURCES ${CMAKE_SOURCE_DIR}/vendor/*/src/*.cpp)
+add_library(vendor STATIC ${VENDOR_SOURCES})
+# Add every vendor/<lib>/include as a public include path
+file(GLOB VENDOR_DIRS LIST_DIRECTORIES true ${CMAKE_SOURCE_DIR}/vendor/*)
+foreach(VENDOR_DIR ${VENDOR_DIRS})
+  if(IS_DIRECTORY ${VENDOR_DIR})
+    target_include_directories(vendor PUBLIC ${VENDOR_DIR}/include)
+  endif()
+endforeach()
+target_link_libraries(vendor PUBLIC glfw OpenGL::GL)
+set_target_properties(vendor PROPERTIES COMPILE_FLAGS "-w")
 
 # Include directories Makes #include "main.hpp" work without a path prefix
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -131,7 +119,7 @@ elseif(UNIX)
   target_link_libraries(main PRIVATE dl)
 endif()
 
-target_link_libraries(main PRIVATE imgui)
+target_link_libraries(main PRIVATE vendor)
 
 # Copy compile_commands.json to project root for LSP
 if(EXISTS ${CMAKE_BINARY_DIR}/compile_commands.json)

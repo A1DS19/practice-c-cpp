@@ -1,5 +1,6 @@
 #include "main.hpp"
 
+#include <GL/gl.h>
 #include <GLFW/glfw3.h>
 #include <cstdlib>
 #include <imgui.h>
@@ -47,6 +48,8 @@ auto main() -> int {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(GLSL_VERSION);
 
+    ImVec4 clear_color = ImVec4(0.000f, 0.169f, 0.212f, 1.00f); // Solarized Dark base03 #002b36
+
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0) {
@@ -63,6 +66,8 @@ auto main() -> int {
         int display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
+        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
+                     clear_color.z * clear_color.w, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
         glfwSwapBuffers(window);
     }
