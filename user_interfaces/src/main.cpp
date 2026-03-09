@@ -1,11 +1,17 @@
 #include "main.hpp"
 
+#include "window.hpp"
+
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
 #include <cstdlib>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+
+static void render_windows() {
+    UI::Window("File Explorer");
+}
 
 auto main() -> int {
 
@@ -61,6 +67,8 @@ auto main() -> int {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        render_windows();
+
         ImGui::Render();
         int display_w;
         int display_h;
@@ -69,6 +77,7 @@ auto main() -> int {
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
                      clear_color.z * clear_color.w, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
     }
 
