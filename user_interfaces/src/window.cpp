@@ -1,8 +1,11 @@
 #include "window.hpp"
 
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "main.hpp"
 
+#include <cstddef>
+#include <cstring>
 #include <filesystem>
 #include <format>
 #include <string_view>
@@ -66,4 +69,32 @@ void Window::draw_content() {
 
 void Window::draw_actions() {}
 
-void Window::draw_filters() {}
+void Window::draw_filters() {
+    static char extension_filter[16] = {"\0"};
+
+    ImGui::Text("Filter by extension");
+    ImGui::SameLine();
+    // ### to hide label
+    ImGui::InputText("###inFilter", extension_filter, sizeof(extension_filter));
+
+    if (std::strlen(extension_filter) == 0) {
+        return;
+    }
+
+    auto filtered_file_count = std::size_t{0};
+    for (const auto& entry : fs::directory_iterator(current_directory_)) {
+        if (!fs::is_regular_file(entry)) {
+            continue;
+        }
+
+        auto filter_extension = entry.path().extension().string();
+        std::erase(filter_extension, '.');
+
+        if (entry.path().extension().string() == extension_filter ||
+            filter_extension == extension_filter) {
+            ++filtered_file_count;
+        }
+    }
+
+    ImGui::Text("Number of files: %zu", filtered_file_count);
+}
