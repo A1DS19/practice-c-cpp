@@ -4,7 +4,11 @@
 #include "function_plotter.hpp"
 #include "text_editor.hpp"
 
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #include <GLFW/glfw3.h>
 #include <cstdlib>
 #include <imgui.h>
@@ -18,9 +22,16 @@ auto main() -> int {
         return EXIT_FAILURE;
     }
 
+#ifdef __APPLE__
+    const auto* const GLSL_VERSION = "#version 410";
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#else
     const auto* const GLSL_VERSION = "#version 460";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+#endif
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
