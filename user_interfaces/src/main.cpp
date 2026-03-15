@@ -68,6 +68,7 @@ auto main() -> int {
 
     ImVec4 clear_color = ImVec4(0.000f, 0.169f, 0.212f, 1.00f); // Solarized Dark base03 #002b36
 
+    {
     auto file_explorer = FileExplorer::Window("File Explorer");
     auto function_plotter = FunctionPlotter::Window();
     auto text_editor = TextEditor::Window();
@@ -99,6 +100,7 @@ auto main() -> int {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
     }
+    } // destroy window objects before ImGui context
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
