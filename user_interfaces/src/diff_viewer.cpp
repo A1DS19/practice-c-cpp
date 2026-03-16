@@ -99,6 +99,9 @@ void Window::draw_stats() {
     }
 
     ImGui::Text("Diff lines count %lu", diff_lines_count);
+
+    ImGui::Text("Left file: %s", file_diff_1_->path_.data());
+    ImGui::Text("Right file: %s", file_diff_2_->path_.data());
 }
 
 void Window::create_diff() {
